@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+sqlalchemy
+pymysql
+anthropic
+python-dotenv
+pydantic-settings
+beautifulsoup4
