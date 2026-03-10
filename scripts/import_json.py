@@ -48,6 +48,8 @@ def main():
             if file.endswith(".json"):
                 json_files.append(os.path.join(root, file))
 
+    BATCH_SIZE = 1000
+
     total = len(json_files)
     saved = 0
     skipped = 0
@@ -102,14 +104,18 @@ def main():
 
             db.add(article)
             existing_ids.add(article_id)
-            try:
-                db.commit()
-                saved += 1
-            except Exception as e:
-                db.rollback()
-                print(f"  → DB 저장 오류: {e}")
-                skipped += 1
+            saved += 1
 
+            if saved % BATCH_SIZE == 0:
+                db.commit()
+                print(f"  → {saved}건 커밋 완료.")
+
+        # 마지막 남은 배치 커밋
+        db.commit()
+
+    except Exception as e:
+        db.rollback()
+        print(f"  → DB 저장 오류: {e}")
     finally:
         db.close()
 
