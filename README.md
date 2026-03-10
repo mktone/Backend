@@ -36,6 +36,8 @@ docker-compose up --build
 Docker DB가 실행 중인 상태에서 아래 명령어를 실행합니다.
 
 ```bash
+python -m venv venv
+venv\Scripts\activate
 pip install -r requirements.txt
 python scripts/import_json.py
 ```

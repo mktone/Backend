@@ -1,3 +1,4 @@
 .env
 __pycache__/
 01.매경뉴스json_2025/
+.venv/
