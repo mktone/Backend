@@ -21,9 +21,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from app.routers import articles
+app.include_router(articles.router)
+
 # 라우터 추가 예정
-# from app.routers import articles, convert
-# app.include_router(articles.router)
+# from app.routers import convert
 # app.include_router(convert.router)
 
 
