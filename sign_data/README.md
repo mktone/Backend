@@ -29,9 +29,14 @@ sign_data/
 
 ## 데이터 다운로드
 
-**Google Drive** 링크에서 `수어영상` 폴더를 받아 아래 경로에 배치:
+**AI hub** 링크에서 `수어영상` 폴더를 받아 아래 경로에 배치:
 
 ```
+[다운받을 데이터]
+01_real_word_keypoint.zip
+01_real_word_morpheme.zip
+
+[경로]
 mkton/Backend/sign_data/수어영상/
 ```
 
