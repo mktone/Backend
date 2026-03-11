@@ -65,6 +65,9 @@ def process_word(morpheme_path):
     if total_frames == 0:
         return None
 
+    if duration <= 0:
+        return None
+
     fps         = total_frames / duration
     start_frame = max(0, int(round(start_time * fps)))
     end_frame   = min(total_frames - 1, int(round(end_time * fps)))
