@@ -40,6 +40,8 @@ services:
     environment:
       DB_HOST: db
       DB_PORT: 3306
+      SIGN_DB_HOST: sign_db
+      SIGN_DB_PORT: 3306
     ports:
       - "8000:8000"
     depends_on:

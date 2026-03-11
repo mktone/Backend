@@ -16,3 +16,13 @@ class ArticleResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class ConvertRequest(BaseModel):
+    article_url: str
+
+
+class ConvertResponse(BaseModel):
+    article_url: str
+    original_body: str
+    converted_text: str
