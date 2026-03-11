@@ -48,6 +48,8 @@ def main():
             if file.endswith(".json"):
                 json_files.append(os.path.join(root, file))
 
+    BATCH_SIZE = 1000
+
     total = len(json_files)
     saved = 0
     skipped = 0
@@ -56,6 +58,11 @@ def main():
     db = SessionLocal()
 
     try:
+        # 기존 article_id 한 번에 로드 (중복 체크용)
+        print("기존 article_id를 로드합니다...")
+        existing_ids = {item[0] for item in db.query(Article.article_id).all()}
+        print(f"{len(existing_ids)}개의 기존 ID 로드 완료.")
+
         for idx, filepath in enumerate(json_files, 1):
             filename = os.path.basename(filepath)
             print(f"[{idx}/{total}] 처리 중: {filename}")
@@ -73,8 +80,8 @@ def main():
                 skipped += 1
                 continue
 
-            # 중복 체크
-            if db.query(Article).filter(Article.article_id == article_id).first():
+            # 메모리에서 중복 체크
+            if article_id in existing_ids:
                 skipped += 1
                 continue
 
@@ -96,14 +103,19 @@ def main():
             )
 
             db.add(article)
-            try:
-                db.commit()
-                saved += 1
-            except Exception as e:
-                db.rollback()
-                print(f"  → DB 저장 오류: {e}")
-                skipped += 1
+            existing_ids.add(article_id)
+            saved += 1
 
+            if saved % BATCH_SIZE == 0:
+                db.commit()
+                print(f"  → {saved}건 커밋 완료.")
+
+        # 마지막 남은 배치 커밋
+        db.commit()
+
+    except Exception as e:
+        db.rollback()
+        print(f"  → DB 저장 오류: {e}")
     finally:
         db.close()
 
