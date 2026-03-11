@@ -15,6 +15,11 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 
+def create_tables():
+    from app.models.article import Article  # noqa: F401
+    Base.metadata.create_all(bind=engine)
+
+
 def get_news_db():
     db = SessionLocal()
     try:

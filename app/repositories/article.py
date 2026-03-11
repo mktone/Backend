@@ -1,3 +1,7 @@
-# TODO: Article 레포지토리 구현 예정
+from sqlalchemy.orm import Session
 
-pass
+from app.models.article import Article
+
+
+def get_article_by_url(db: Session, article_url: str):
+    return db.query(Article).filter(Article.article_url == article_url).first()
