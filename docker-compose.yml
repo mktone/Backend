@@ -1,5 +1,4 @@
 version: "3.8"
-
 services:
   db:
     image: mysql:8.0
@@ -19,7 +18,21 @@ services:
       timeout: 5s
       retries: 10
       start_period: 30s
-
+  sign_db:
+    image: mysql:8.0
+    container_name: sign_language_db
+    env_file:
+      - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${SIGN_DB_PASSWORD}
+      MYSQL_DATABASE: ${SIGN_DB_NAME}
+    ports:
+      - "3308:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   api:
     build: .
     env_file:
@@ -31,6 +44,8 @@ services:
       - "8000:8000"
     depends_on:
       db:
+        condition: service_healthy
+      sign_db:
         condition: service_healthy
     restart: on-failure
 
