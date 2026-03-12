@@ -1,7 +1,22 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    from app.databases.news_session import create_tables
+    create_tables()
+    yield
+
+
+app = FastAPI(
+    lifespan=lifespan,
+    title="수어로 보는 뉴스 API",
+    description="청각장애인을 위한 수어 뉴스 서비스 백엔드 API",
+    version="1.0.0",
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -11,12 +26,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from app.routers import articles
+app.include_router(articles.router, prefix="/api/v1")
+
 # 라우터 추가 예정
-# from app.routers import articles, convert
-# app.include_router(articles.router)
-# app.include_router(convert.router)
+# from app.routers import convert
+# app.include_router(convert.router, prefix="/api/v1")
 
 
-@app.get("/")
-def root():
-    return {"message": "Hello World"}
+@app.get(
+    "/health",
+    tags=["Health"],
+    summary="서버 상태 확인",
+    description="서버가 정상 동작 중인지 확인합니다",
+    responses={200: {"description": "서버 정상 동작 중"}},
+)
+def health_check():
+    return {"status": "ok", "message": "서버가 정상 동작 중입니다"}

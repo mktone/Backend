@@ -2,8 +2,8 @@
 .DS_Store
 __pycache__/
 01.매경뉴스json_2025/
+.venv/
 sign_data/*
 !sign_data/README.md
 !sign_data/parse_keypoints.py
 !sign_data/visualize_sign.py
-
