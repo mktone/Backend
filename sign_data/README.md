@@ -11,7 +11,7 @@ sign_data/
 ├── parse_keypoints.py     ← 데이터 파싱 스크립트
 ├── mapping.json           ← 파싱 후 자동 생성됨
 ├── README.md
-├── 수어영상/               ← ❌ git 미포함 (Google Drive에서 받을 것)
+├── 수어영상/               ← ❌ git 미포함 (AI hub에서 받을 것)
 │   ├── 01/               ← 키포인트 JSON 데이터 (REAL01)
 │   │   ├── NIA_SL_WORD0001_REAL01_D/
 │   │   ├── NIA_SL_WORD0001_REAL01_F/
@@ -147,7 +147,7 @@ SELECT * FROM sign_words LIMIT 20;
 
 | 필드 | 설명 |
 |---|---|
-| `npy_path` | npy 파일 경로 |
+| `npy_path` | npy 파일 경로 (shape: frames, 137, 3) |
 | `word_num` | 수어 단어 고유 번호 (동음이의어 구분) |
 | `signer` | 화자 ID (REAL01 ~ REAL16) |
 | `direction` | 촬영 방향 (D/F/L/R/U) |
@@ -158,11 +158,42 @@ SELECT * FROM sign_words LIMIT 20;
 
 ---
 
+## DB 테이블 구조 (sign_words)
+
+| 컬럼 | 타입 | 설명 |
+|---|---|---|
+| `word` | String | 한글 단어 |
+| `word_num` | String | 수어 고유 번호 (WORD####) |
+| `signer` | String | 화자 ID |
+| `direction` | String | 촬영 방향 |
+| `start` / `end` | Float | 수어 시작/종료 시각 |
+| `duration_sec` | Float | 수어 길이 |
+| `frames` | Integer | 프레임 수 |
+| `fps` | Float | 초당 프레임 수 |
+| `npy_path` | String | npy 파일 경로 |
+| `category` | Integer | 동음이의어 의미 번호 (1/2, 방언은 NULL) |
+
+### 동음이의어 category 분류
+
+| 단어 | category=1 | category=2 |
+|---|---|---|
+| 눈 | 신체(eye) | 날씨(snow) |
+| 팔 | 신체(arm) | 숫자(8) |
+| 검사 | 행위(inspection) | 직업(prosecutor) |
+| 지도 | 지도(map) | 가르침(coaching) |
+| 구조 | 짜임새(structure) | 구해냄(rescue) |
+| 공식 | 수식(formula) | 공적(official) |
+| 이천 | 지명(Icheon) | 숫자(2000) |
+
+---
+
 ## npy 파일 형식
 
 ```
-shape: (frames, 137, 2)
+shape: (frames, 137, 3)
   - frames: 해당 수어의 프레임 수
   - 137: 관절 수 (pose 25 + face 70 + 왼손 21 + 오른손 21)
-  - 2: x, y 좌표
+  - 3: x, y, z 좌표 (3D, 카메라 기준 미터 단위)
+
+2D만 필요하면: motion[:, :, :2]
 ```
