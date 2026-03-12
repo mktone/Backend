@@ -93,7 +93,7 @@ def process_word(morpheme_path):
     np.save(save_path, motion)
 
     meta_entry = {
-        "npy_path":     save_path,
+        "npy_path":     os.path.join("sign_data", "word_motion_db", save_name),
         "word_num":     word_num,
         "signer":       signer,
         "direction":    direction,

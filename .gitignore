@@ -7,3 +7,5 @@ sign_data/*
 !sign_data/README.md
 !sign_data/parse_keypoints.py
 !sign_data/visualize_sign.py
+!sign_data/extract_fingerspelling.py
+!sign_data/extract_all_fingerspelling.py

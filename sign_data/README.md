@@ -2,14 +2,19 @@
 
 수어 키포인트 데이터를 파싱하여 `.npy` 파일과 `mapping.json`을 생성하고, DB에 저장하는 모듈입니다.
 
+- **단어 수어**: AI Hub OpenPose 데이터 → `sign_words` 테이블
+- **지문자 (자모)**: 직접 촬영 영상 → MediaPipe Holistic → `sign_fingerspelling` 테이블
+
 ---
 
 ## 폴더 구조
 
 ```
 sign_data/
-├── parse_keypoints.py     ← 데이터 파싱 스크립트
-├── mapping.json           ← 파싱 후 자동 생성됨
+├── parse_keypoints.py             ← 단어 수어 파싱 스크립트
+├── extract_all_fingerspelling.py  ← 지문자 keypoint 추출 스크립트
+├── mapping.json                   ← 단어 수어 파싱 후 자동 생성
+├── mapping_fingerspelling.json    ← 지문자 추출 후 자동 생성
 ├── README.md
 ├── 수어영상/               ← ❌ git 미포함 (AI hub에서 받을 것)
 │   ├── 01/               ← 키포인트 JSON 데이터 (REAL01)
@@ -20,14 +25,23 @@ sign_data/
 │       ├── 01/
 │       ├── 02/
 │       └── ...
-└── word_motion_db/        ← ❌ git 미포함 (파싱 후 자동 생성)
-    ├── 약효_WORD2145_REAL01_F.npy
+├── word_motion_db/        ← ❌ git 미포함 (파싱 후 자동 생성)
+│   ├── 약효_WORD2145_REAL01_F.npy
+│   └── ...
+├── raw_sign/              ← ❌ git 미포함 (구글 드라이브에서 받을 것)
+│   ├── IMG_2376.MOV       ← 지문자 원본 영상 (ㄱ~ㅢ 31개)
+│   └── ...
+└── fingerspelling_db/     ← ❌ git 미포함 (추출 후 자동 생성 / 구글 드라이브 공유)
+    ├── ㄱ_keypoints.npy
+    ├── ㄴ_keypoints.npy
     └── ...
 ```
 
 ---
 
 ## 데이터 다운로드
+
+### 단어 수어 (AI Hub)
 
 **AI hub** 링크에서 `수어영상` 폴더를 받아 아래 경로에 배치:
 
@@ -41,6 +55,18 @@ mkton/Backend/sign_data/수어영상/
 ```
 
 > 현재 보유 데이터: REAL01 키포인트 (5방향), 전체 16명 morpheme 라벨
+
+### 지문자 (구글 드라이브)
+
+구글 드라이브에서 `raw_sign.zip`을 받아 압축 해제 후 아래 경로에 배치:
+
+```
+[경로]
+mkton/Backend/sign_data/raw_sign/
+```
+
+> 원본 영상 31개 (ㄱ~ㅢ) 포함
+> 받은 후 아래 실행 순서 6~7번 진행하면 npy + DB 자동 생성
 
 ---
 
@@ -100,7 +126,7 @@ python3 sign_data/parse_keypoints.py
 - `sign_data/word_motion_db/*.npy` - 단어별 키포인트 시퀀스
 - `sign_data/mapping.json` - 단어 → npy 경로/메타 매핑
 
-### 5. DB에 데이터 저장
+### 5. 단어 수어 DB 저장
 
 ```bash
 python3 scripts/import_sign.py
@@ -108,7 +134,27 @@ python3 scripts/import_sign.py
 
 완료 메시지: `DB INSERT 완료: 15000개 행 저장`
 
-### 6. DB 확인 (MySQL Workbench)
+### 6. 지문자 keypoint 추출 (npy + mapping_fingerspelling.json 생성)
+
+> `raw_sign/` 폴더에 원본 영상 31개가 있어야 함
+
+```bash
+python3 sign_data/extract_all_fingerspelling.py
+```
+
+완료 후 생성되는 파일:
+- `sign_data/fingerspelling_db/*.npy` - 자모별 keypoint (shape: frames, 543, 3)
+- `sign_data/mapping_fingerspelling.json`
+
+### 7. 지문자 DB 저장
+
+```bash
+python3 scripts/import_fingerspelling.py
+```
+
+완료 메시지: `DB INSERT 완료: 31개 행 저장`
+
+### 8. DB 확인 (MySQL Workbench)
 
 | 항목 | 값 |
 |---|---|
@@ -189,11 +235,50 @@ SELECT * FROM sign_words LIMIT 20;
 
 ## npy 파일 형식
 
+### 단어 수어 (OpenPose)
 ```
 shape: (frames, 137, 3)
   - frames: 해당 수어의 프레임 수
   - 137: 관절 수 (pose 25 + face 70 + 왼손 21 + 오른손 21)
-  - 3: x, y, z 좌표 (3D, 카메라 기준 미터 단위)
+  - 3: x, y, z 좌표
 
 2D만 필요하면: motion[:, :, :2]
 ```
+
+### 지문자 (MediaPipe Holistic)
+```
+shape: (frames, 543, 3)
+  - frames: 해당 자모의 프레임 수
+  - 543: 관절 수 (pose 33 + face 468 + 왼손 21 + 오른손 21)
+  - 3: x, y, z 좌표
+
+2D만 필요하면: motion[:, :, :2]
+```
+
+---
+
+## mapping_fingerspelling.json 구조
+
+```json
+[
+  {
+    "jamo": "ㄱ",
+    "duration_sec": 2.8157,
+    "frames": 146,
+    "fps": 51.8519,
+    "npy_path": "sign_data/fingerspelling_db/ㄱ_keypoints.npy"
+  }
+]
+```
+
+---
+
+## DB 테이블 구조 (sign_fingerspelling)
+
+| 컬럼 | 타입 | 설명 |
+|---|---|---|
+| `jamo` | String | 자모 (ㄱ~ㅢ) |
+| `duration_sec` | Float | 영상 길이 (초) |
+| `frames` | Integer | 프레임 수 |
+| `fps` | Float | 초당 프레임 수 |
+| `npy_path` | String | npy 파일 상대경로 |
