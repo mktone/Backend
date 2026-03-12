@@ -20,6 +20,18 @@ MAPPING_PATH = os.path.join(
     "sign_data", "mapping.json"
 )
 
+# 진짜 동음이의어 word_num → category 번호
+HOMONYM_CATEGORY = {
+    "WORD0005": 1, "WORD1372": 2,   # 눈: 신체(1) / 날씨(2)
+    "WORD1147": 1, "WORD2639": 2,   # 팔: 신체(1) / 숫자(2)
+    "WORD0029": 1, "WORD1129": 2,   # 검사: 행위(1) / 직업(2)
+    "WORD0236": 1, "WORD0408": 1,   # 지도: map(1)
+    "WORD0413": 2, "WORD0768": 2,   # 지도: coaching(2)
+    "WORD1588": 1, "WORD2178": 2,   # 구조: 짜임새(1) / 구해냄(2)
+    "WORD0137": 1, "WORD0811": 2,   # 공식: 수식(1) / 공적(2)
+    "WORD1483": 1, "WORD2866": 2,   # 이천: 지명(1) / 숫자(2)
+}
+
 
 def main():
     if not os.path.exists(MAPPING_PATH):
@@ -57,6 +69,7 @@ def main():
                     frames       = entry["frames"],
                     fps          = entry["fps"],
                     npy_path     = entry["npy_path"],
+                    category     = HOMONYM_CATEGORY.get(entry["word_num"]),
                 )
                 db.add(row)
                 total += 1
