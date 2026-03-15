@@ -7,7 +7,20 @@ from fastapi.middleware.cors import CORSMiddleware
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     from app.databases.news_session import create_tables
+    from app.databases.sign_session import SignSessionLocal
+    from app.services.embedding_service import embedding_service
+    from app.services.sign_service import get_available_sign_words
+
     create_tables()
+
+    embedding_service.load_model()
+    sign_db = SignSessionLocal()
+    try:
+        sign_words = get_available_sign_words(sign_db)
+        embedding_service.build_index(sign_words)
+    finally:
+        sign_db.close()
+
     yield
 
 

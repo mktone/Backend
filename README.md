@@ -56,3 +56,13 @@ python scripts/import_json.py
 ```
 http://localhost:8000/docs
 ```
+
+> **참고 - 서버 시작 시 동작**
+> - 한국어 임베딩 모델(`jhgan/ko-sroberta-multitask`) 로딩 (최초 1회 다운로드)
+> - sign_db 단어 임베딩 벡터 계산 (수십 초 소요)
+>
+> **`/api/v1/convert` 동작 방식**
+> - 형태소 분석으로 sign_db 단어와 정확한 매칭 먼저 수행
+> - 매칭 안 된 단어는 임베딩 유사도로 sign_db에서 가장 유사한 단어 탐색
+>   예) "재미있다" → sign_db에 "흥미롭다"가 있으면 자동 대체
+> - 유사 단어도 없는 경우만 `[지문자: 단어]` 형식으로 표시

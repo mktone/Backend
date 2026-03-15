@@ -24,12 +24,8 @@ _BASE_PROMPT = """\
 5. 복잡한 한자어·전문용어는 쉬운 말로 풀어쓰기
 
 [단어 처리 규칙]
-- 아래 "수어 DB 단어 목록"에 있는 단어는 그대로 사용하세요.
-- 목록에 없는 단어라도 목록에 있는 유사한 단어나 기본형으로 대체할 수 있으면 대체하세요.
-  예) "보여준다" → 목록에 "보다"가 있으면 "보다"로 대체
-  예) "달려가고" → 목록에 "달리다"가 있으면 "달리다"로 대체
-  예) "아름다운" → 목록에 "아름답다"가 있으면 "아름답다"로 대체
-- 유사 단어로도 대체할 수 없는 단어만 [지문자: 단어] 형식으로 표시하세요.
+- "수어 가능 단어 목록"에 있는 단어는 그대로 사용하세요.
+- "지문자 처리 단어 목록"에 있는 단어는 반드시 [지문자: 단어] 형식으로 표시하세요.
 - 동음이의어(카테고리가 있는 단어)는 문맥에 맞는 번호를 괄호에 넣어 표시하세요.
   예) 눈(1) → 신체의 눈(eye), 눈(2) → 날씨의 눈(snow)
 
@@ -39,18 +35,17 @@ _BASE_PROMPT = """\
 """
 
 
-def _build_system_prompt(sign_words: dict[str, list[int | None]]) -> str:
-    if not sign_words:
-        return _BASE_PROMPT + "\n\n[수어 DB 단어 목록]\n(단어 목록 없음 - 모든 단어를 [지문자: 단어] 형식으로 표시)"
-
-    regular: list[str] = []
+def _build_system_prompt(
+    sign_words: dict[str, list[int | None]],
+    available: set[str],
+    unavailable: set[str],
+) -> str:
     homonyms: list[str] = []
-
-    for word, categories in sign_words.items():
-        real_cats = [c for c in categories if c is not None]
-        if len(real_cats) <= 1:
-            regular.append(word)
-        else:
+    for word in available:
+        if word not in sign_words:
+            continue
+        real_cats = [c for c in sign_words[word] if c is not None]
+        if len(real_cats) > 1:
             if word in HOMONYM_INFO:
                 desc = ", ".join(
                     f"{c}={HOMONYM_INFO[word][c]}"
@@ -61,18 +56,30 @@ def _build_system_prompt(sign_words: dict[str, list[int | None]]) -> str:
             else:
                 homonyms.append(f"{word} (카테고리: {', '.join(str(c) for c in real_cats)})")
 
-    word_list_section = "\n\n[수어 DB 단어 목록]\n"
-    if regular:
-        word_list_section += "일반 단어: " + ", ".join(sorted(regular)) + "\n"
+    prompt = _BASE_PROMPT
+
+    if available:
+        prompt += "\n\n[수어 가능 단어 목록]\n"
+        prompt += ", ".join(sorted(available)) + "\n"
+
     if homonyms:
-        word_list_section += "동음이의어:\n" + "\n".join(f"  - {h}" for h in homonyms) + "\n"
+        prompt += "\n[동음이의어]\n" + "\n".join(f"  - {h}" for h in homonyms) + "\n"
 
-    return _BASE_PROMPT + word_list_section
+    if unavailable:
+        prompt += "\n\n[지문자 처리 단어 목록]\n"
+        prompt += ", ".join(sorted(unavailable)) + "\n"
+
+    return prompt
 
 
-def convert_to_sign_language(body: str, sign_words: dict[str, list[int | None]]) -> str:
+def convert_to_sign_language(
+    body: str,
+    sign_words: dict[str, list[int | None]],
+    available: set[str],
+    unavailable: set[str],
+) -> str:
     client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
-    system_prompt = _build_system_prompt(sign_words)
+    system_prompt = _build_system_prompt(sign_words, available, unavailable)
 
     message = client.messages.create(
         model="claude-sonnet-4-20250514",
