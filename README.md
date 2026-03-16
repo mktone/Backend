@@ -4,7 +4,17 @@
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 - Python 3.11
-- 매경 뉴스 JSON 데이터 (`01.매경뉴스json_2025/` 폴더)
+- 매경 뉴스 JSON 데이터 (`01.매경뉴스json_2025/` 폴더) → 프로젝트 루트(`Backend/`)에 위치해야 합니다
+
+```
+Backend/
+├── 01.매경뉴스json_2025/   ← 여기에 위치
+│   ├── *.json
+├── app/
+├── scripts/
+├── docker-compose.yml
+└── ...
+```
 
 ## 시작하기
 

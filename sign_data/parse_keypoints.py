@@ -14,22 +14,25 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 
 def extract_keypoints_from_frame(json_path):
-    """프레임 JSON에서 x,y 키포인트 추출 → shape: (137, 2)"""
+    """프레임 JSON에서 3D 키포인트 추출 → shape: (137, 3)
+
+    2D가 필요하면 motion[:, :, :2] 로 슬라이싱
+    """
     with open(json_path) as f:
         d = json.load(f)
 
     people = d["people"]
 
     def parse_kp(flat_list, n_points):
-        arr = np.array(flat_list, dtype=np.float32).reshape(n_points, 3)
-        return arr[:, :2]  # x, y만 (confidence 제거)
+        arr = np.array(flat_list, dtype=np.float32).reshape(n_points, 4)
+        return arr[:, :3]  # x, y, z (confidence 제거)
 
-    pose  = parse_kp(people["pose_keypoints_2d"],       25)   # 25개
-    face  = parse_kp(people["face_keypoints_2d"],       70)   # 70개
-    lhand = parse_kp(people["hand_left_keypoints_2d"],  21)   # 21개
-    rhand = parse_kp(people["hand_right_keypoints_2d"], 21)   # 21개
+    pose  = parse_kp(people["pose_keypoints_3d"],       25)
+    face  = parse_kp(people["face_keypoints_3d"],       70)
+    lhand = parse_kp(people["hand_left_keypoints_3d"],  21)
+    rhand = parse_kp(people["hand_right_keypoints_3d"], 21)
 
-    return np.concatenate([pose, face, lhand, rhand], axis=0)  # (137, 2)
+    return np.concatenate([pose, face, lhand, rhand], axis=0)  # (137, 3)
 
 
 def process_word(morpheme_path):
@@ -83,16 +86,14 @@ def process_word(morpheme_path):
     if len(frames) == 0:
         return None
 
-    motion = np.array(frames)  # (frames, 137, 2)
+    motion = np.array(frames)  # (frames, 137, 3)
 
-    # npy 저장: {단어}_{WORD번호}_{화자}_{방향}.npy
-    # 예: 약효_WORD2145_REAL01_F.npy
     save_name = f"{word}_{word_num}_{signer}_{direction}.npy"
     save_path = os.path.join(OUTPUT_DIR, save_name)
     np.save(save_path, motion)
 
     meta_entry = {
-        "npy_path":     save_path,
+        "npy_path":     os.path.join("sign_data", "word_motion_db", save_name),
         "word_num":     word_num,
         "signer":       signer,
         "direction":    direction,
