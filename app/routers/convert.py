@@ -33,7 +33,12 @@ def convert_article(
     sign_words = get_available_sign_words(sign_db)
     preprocessed_body = preprocess_remove_particles(article.body)
     available, unavailable, replacements = match_sign_words(preprocessed_body, sign_words)
-    converted_text = convert_to_sign_language(preprocessed_body, sign_words, available, unavailable, replacements)
+    paragraphs = [p for p in preprocessed_body.split("\n") if p.strip()]
+    converted_parts = [
+        convert_to_sign_language(p, sign_words, available, unavailable, replacements)
+        for p in paragraphs
+    ]
+    converted_text = "\n".join(converted_parts)
     converted_text = postprocess_converted_text(converted_text, sign_words)
     return ConvertResponse(
         article_url=request.article_url,
