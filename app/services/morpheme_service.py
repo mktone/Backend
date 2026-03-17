@@ -117,13 +117,12 @@ def _to_lemma(form: str, tag: str) -> list[str]:
 
 def match_sign_words(
     text: str, sign_words: dict[str, list]
-) -> tuple[set[str], set[str], dict[str, str]]:
+) -> tuple[set[str], set[str]]:
     """텍스트에서 형태소를 추출하고 sign_db 단어 목록과 매칭합니다."""
     tokens = _kiwi.tokenize(text)
 
     available: set[str] = set()
     unavailable: set[str] = set()
-    replacements: dict[str, str] = {}
 
     for token in tokens:
         if token.tag not in _NOUN_POS and token.tag not in _VERB_POS:
@@ -137,7 +136,7 @@ def match_sign_words(
         else:
             unavailable.add(candidates[-1])
 
-    return available, unavailable, replacements
+    return available, unavailable
 
 
 def postprocess_converted_text(text: str, sign_words: dict[str, list]) -> str:

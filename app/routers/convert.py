@@ -34,10 +34,10 @@ async def convert_article(
     article = get_article_by_url(news_db, request.article_url)
     sign_words = get_available_sign_words(sign_db)
     preprocessed_body = preprocess_remove_particles(article.body)
-    available, unavailable, replacements = match_sign_words(preprocessed_body, sign_words)
+    available, unavailable = match_sign_words(preprocessed_body, sign_words)
     paragraphs = [p for p in preprocessed_body.split("\n") if p.strip()]
     converted_parts = await asyncio.gather(*[
-        convert_to_sign_language(p, sign_words, available, unavailable, replacements)
+        convert_to_sign_language(p, sign_words, available, unavailable)
         for p in paragraphs
     ])
     converted_text = "\n".join(converted_parts)

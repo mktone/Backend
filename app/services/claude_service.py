@@ -39,7 +39,6 @@ def _build_system_prompt(
     sign_words: dict[str, list[int | None]],
     available: set[str],
     unavailable: set[str],
-    replacements: dict[str, str] | None = None,
 ) -> str:
     homonyms: list[str] = []
     for word in available:
@@ -78,10 +77,9 @@ async def convert_to_sign_language(
     sign_words: dict[str, list[int | None]],
     available: set[str],
     unavailable: set[str],
-    replacements: dict[str, str] | None = None,
 ) -> str:
     client = anthropic.AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY)
-    system_prompt = _build_system_prompt(sign_words, available, unavailable, replacements)
+    system_prompt = _build_system_prompt(sign_words, available, unavailable)
 
     message = await client.messages.create(
         model="claude-sonnet-4-20250514",
