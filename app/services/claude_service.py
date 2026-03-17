@@ -73,17 +73,17 @@ def _build_system_prompt(
     return prompt
 
 
-def convert_to_sign_language(
+async def convert_to_sign_language(
     body: str,
     sign_words: dict[str, list[int | None]],
     available: set[str],
     unavailable: set[str],
     replacements: dict[str, str] | None = None,
 ) -> str:
-    client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
+    client = anthropic.AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY)
     system_prompt = _build_system_prompt(sign_words, available, unavailable, replacements)
 
-    message = client.messages.create(
+    message = await client.messages.create(
         model="claude-sonnet-4-20250514",
         max_tokens=4096,
         system=system_prompt,
