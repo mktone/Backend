@@ -156,7 +156,11 @@ def postprocess_converted_text(text: str, sign_words: dict[str, list]) -> str:
         else:
             result.append(_replace_non_sign_words(part, sign_word_set))
 
-    return "".join(result)
+    text = "".join(result)
+    text = re.sub("[\\.,'\"\\u2018\\u2019\\u201c\\u201d]", "", text)
+    text = re.sub(r"\((?!\d+\))", "", text)  # 숫자 아닌 경우의 ( 제거
+    text = re.sub(r"(?<!\d)\)", "", text)    # 숫자 뒤가 아닌 ) 제거
+    return re.sub(r" +", " ", text).strip()
 
 
 def _replace_non_sign_words(text: str, sign_word_set: set) -> str:
