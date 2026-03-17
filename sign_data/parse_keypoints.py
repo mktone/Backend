@@ -88,7 +88,7 @@ def process_word(morpheme_path):
 
     motion = np.array(frames)  # (frames, 137, 3)
 
-    save_name = f"{word}_{word_num}_{signer}_{direction}.npy"
+    save_name = f"{word.strip()}_{word_num}_{signer}_{direction}.npy"
     save_path = os.path.join(OUTPUT_DIR, save_name)
     np.save(save_path, motion)
 
@@ -143,12 +143,10 @@ def build_mapping(meta_records):
 
 
 def main():
-    # 기존 npy 파일 초기화 (재실행 시 중복 방지)
-    existing = glob.glob(os.path.join(OUTPUT_DIR, "*.npy"))
+    # 기존 npy 파일 목록 로드 (스킵용)
+    existing = {os.path.basename(f) for f in glob.glob(os.path.join(OUTPUT_DIR, "*.npy"))}
     if existing:
-        print(f"기존 .npy 파일 {len(existing)}개 삭제 후 재생성...")
-        for f in existing:
-            os.remove(f)
+        print(f"기존 .npy 파일 {len(existing)}개 발견 - 이미 처리된 파일은 스킵합니다.")
 
     # morpheme/01 ~ morpheme/16 모든 폴더 수집
     morpheme_dirs = sorted(glob.glob(os.path.join(MORPHEME_BASE, "*")))
@@ -162,15 +160,31 @@ def main():
     meta_records = defaultdict(list)
     success, fail = 0, 0
 
+    skipped = 0
     for i, mpath in enumerate(all_files):
+        # 이미 처리된 파일 스킵
+        base_name = os.path.splitext(os.path.basename(mpath))[0].replace("_morpheme", "")
+        parts = base_name.split("_")
+        word = "_".join(parts[:-3]).strip() if len(parts) > 3 else parts[0].strip()
+        word_num = next((p for p in parts if p.startswith("WORD")), "UNKNOWN")
+        signer = next((p for p in parts if p.startswith("REAL")), "UNKNOWN")
+        direction = parts[-1]
+        save_name = f"{word}_{word_num}_{signer}_{direction}.npy"
+        if save_name in existing:
+            skipped += 1
+            continue
+
         result = process_word(mpath)
         if result:
             word, meta_entry = result
             meta_records[word].append(meta_entry)
+            existing.add(meta_entry["npy_path"].split("/")[-1])
             print(f"[{i+1}/{len(all_files)}] {word} | {meta_entry['signer']} {meta_entry['direction']} → {meta_entry['frames']}frames")
             success += 1
         else:
             fail += 1
+
+    print(f"스킵: {skipped}개")
 
     print(f"\n완료: 성공 {success}개, 실패 {fail}개")
     build_mapping(meta_records)
