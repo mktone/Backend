@@ -20,13 +20,13 @@ _BASE_PROMPT = """\
 1. 주어-목적어-동사 어순(SOV)
 2. 조사, 어미, 접속사 생략
 3. 시제는 시간 부사로 표현 (어제, 내일, 지금 등)
-4. 불필요한 수식어 제거, 핵심 의미만 전달
-5. 복잡한 한자어·전문용어는 쉬운 말로 풀어쓰기
+4. 핵심 내용은 유지하고 최소한의 문법 변환만 수행하세요.
 
 [단어 처리 규칙]
-- "수어 가능 단어 목록"에 있는 단어는 그대로 사용하세요.
-- "지문자 처리 단어 목록"에 있는 단어는 반드시 [지문자: 단어] 형식으로 표시하세요.
-- 동음이의어(카테고리가 있는 단어)는 문맥에 맞는 번호를 괄호에 넣어 표시하세요.
+- [수어 가능 단어 목록]에 있는 단어는 그대로 사용하세요.
+- [지문자 처리 단어 목록]에 있는 단어는 중괄호로 표시하세요. 예) {섀도우}, {블록버스터}
+- 두 목록 모두에 없는 단어도 중괄호로 표시하세요. 예) {히어로}, {스피드}
+- [동음이의어] 목록의 단어는 문맥에 맞는 번호를 붙여 사용하세요.
   예) 눈(1) → 신체의 눈(eye), 눈(2) → 날씨의 눈(snow)
 
 [출력 형식]
@@ -39,6 +39,7 @@ def _build_system_prompt(
     sign_words: dict[str, list[int | None]],
     available: set[str],
     unavailable: set[str],
+    replacements: dict[str, str] | None = None,
 ) -> str:
     homonyms: list[str] = []
     for word in available:
@@ -77,9 +78,10 @@ def convert_to_sign_language(
     sign_words: dict[str, list[int | None]],
     available: set[str],
     unavailable: set[str],
+    replacements: dict[str, str] | None = None,
 ) -> str:
     client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
-    system_prompt = _build_system_prompt(sign_words, available, unavailable)
+    system_prompt = _build_system_prompt(sign_words, available, unavailable, replacements)
 
     message = client.messages.create(
         model="claude-sonnet-4-20250514",
