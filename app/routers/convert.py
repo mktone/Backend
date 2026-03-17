@@ -6,7 +6,7 @@ from app.databases.sign_session import get_sign_db
 from app.schemas.article import ConvertRequest, ConvertResponse
 from app.services.article_service import get_article_by_url
 from app.services.claude_service import convert_to_sign_language
-from app.services.morpheme_service import match_sign_words
+from app.services.morpheme_service import match_sign_words, postprocess_converted_text, preprocess_remove_particles
 from app.services.sign_service import get_available_sign_words
 
 router = APIRouter(tags=["Convert"])
@@ -31,8 +31,10 @@ def convert_article(
 ):
     article = get_article_by_url(news_db, request.article_url)
     sign_words = get_available_sign_words(sign_db)
-    available, unavailable = match_sign_words(article.body, sign_words)
-    converted_text = convert_to_sign_language(article.body, sign_words, available, unavailable)
+    preprocessed_body = preprocess_remove_particles(article.body)
+    available, unavailable, replacements = match_sign_words(preprocessed_body, sign_words)
+    converted_text = convert_to_sign_language(preprocessed_body, sign_words, available, unavailable, replacements)
+    converted_text = postprocess_converted_text(converted_text, sign_words)
     return ConvertResponse(
         article_url=request.article_url,
         original_body=article.body,
