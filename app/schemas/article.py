@@ -18,6 +18,10 @@ class ArticleResponse(BaseModel):
         from_attributes = True
 
 
+class ArticleListResponse(BaseModel):
+    articles: list[ArticleResponse]
+
+
 class ConvertRequest(BaseModel):
     article_url: str
 
