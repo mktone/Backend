@@ -28,9 +28,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-from app.routers import articles, convert
+from app.routers import articles, convert, sign
 app.include_router(articles.router, prefix="/api/v1")
 app.include_router(convert.router, prefix="/api/v1")
+app.include_router(sign.router, prefix="/api/v1")
 
 
 @app.get(
