@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from app.repositories.article import get_article_by_url as repo_get_article_by_url
+from app.repositories.article import get_article_by_url as repo_get_article_by_url, get_articles as repo_get_articles
 
 
 def get_article_by_url(db: Session, article_url: str):
@@ -9,3 +9,7 @@ def get_article_by_url(db: Session, article_url: str):
     if not article:
         raise HTTPException(status_code=404, detail="기사를 찾을 수 없습니다.")
     return article
+
+
+def get_article_list(db: Session, limit: int = 9):
+    return repo_get_articles(db, limit)
