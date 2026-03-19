@@ -88,18 +88,34 @@ def main():
             body_html = get_or_none(data, "article_body", "body")
             body_text = parse_body(body_html) if body_html else None
 
+            images = data.get("images")
+            categories = data.get("categories")
+            comments = data.get("comments")
+
             article = Article(
                 article_id=article_id,
                 title=get_or_none(data, "article", "title"),
+                sub_title=get_or_none(data, "article", "sub_title"),
                 writers=get_or_none(data, "article", "writers"),
                 service_daytime=get_or_none(data, "article", "service_daytime"),
+                reg_dt=get_or_none(data, "article", "reg_dt"),
+                mod_dt=get_or_none(data, "article", "mod_dt"),
+                pub_date=get_or_none(data, "article", "pub_date"),
+                pub_section=get_or_none(data, "article", "pub_section"),
+                pub_page=str(get_or_none(data, "article", "pub_page")) if get_or_none(data, "article", "pub_page") is not None else None,
+                pub_div=get_or_none(data, "article", "pub_div"),
+                lang=get_or_none(data, "article", "lang"),
                 main_category=get_or_none(data, "article", "main_category"),
                 body=body_text,
                 summary=get_or_none(data, "article_summary", "summary"),
                 article_url=get_or_none(data, "article_url"),
+                keywords=get_or_none(data, "article", "keywords"),
                 keyword_list=parse_keyword_list(data.get("keyword_list")),
                 like_count=get_or_none(data, "share", "like_count"),
                 reply_count=get_or_none(data, "share", "reply_count"),
+                images=json.dumps(images, ensure_ascii=False) if images else None,
+                categories=json.dumps(categories, ensure_ascii=False) if categories else None,
+                comments=json.dumps(comments, ensure_ascii=False) if comments else None,
             )
 
             db.add(article)
