@@ -28,7 +28,7 @@ def get_article(url: str, db: Session = Depends(get_news_db)):
     "/articles/list",
     response_model=ArticleListResponse,
     summary="기사 목록 조회",
-    description="최신순으로 기사 목록을 조회합니다. 기본 10개",
+    description="최신순으로 기사 목록을 조회합니다. 기본 9개",
     responses={
         200: {"description": "기사 목록 조회 성공"},
         500: {"description": "서버 오류"},
