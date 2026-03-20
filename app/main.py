@@ -7,8 +7,10 @@ from fastapi.middleware.cors import CORSMiddleware
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     from app.databases.news_session import create_tables
+    from app.core.config import settings
 
     create_tables()
+    print(f"SIGN DB: {settings.SIGN_DB_HOST}:{settings.SIGN_DB_PORT}/{settings.SIGN_DB_NAME}", flush=True)
 
     yield
 

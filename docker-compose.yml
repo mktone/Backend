@@ -28,6 +28,8 @@ services:
       MYSQL_DATABASE: ${SIGN_DB_NAME}
     ports:
       - "3308:3306"
+    volumes:
+      - sign_mysql_data:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
@@ -44,6 +46,8 @@ services:
       SIGN_DB_PORT: 3306
     ports:
       - "8000:8000"
+    volumes:
+      - ./sign_data:/app/sign_data
     depends_on:
       db:
         condition: service_healthy
@@ -53,3 +57,4 @@ services:
 
 volumes:
   mysql_data:
+  sign_mysql_data:
