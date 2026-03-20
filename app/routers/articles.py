@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.concurrency import run_in_threadpool
 from sqlalchemy.orm import Session
 
 from app.databases.news_session import get_news_db
@@ -52,6 +53,8 @@ def get_article_list_api(limit: int = 9, db: Session = Depends(get_news_db)):
     },
 )
 async def summarize_article_api(request: SummarizeRequest, db: Session = Depends(get_news_db)):
-    article = get_article_by_url(db, request.article_url)
+    article = await run_in_threadpool(get_article_by_url, db, request.article_url)
+    if not article.body:
+        raise HTTPException(status_code=400, detail="요약할 기사 본문이 없습니다.")
     summary = await summarize_article(article.body)
     return SummarizeResponse(article_url=request.article_url, summary=summary)
