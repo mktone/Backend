@@ -180,7 +180,5 @@ def get_sign_segments(db: Session, text: str) -> list[dict]:
             result = lookup_word(db, token['word'], token['category'])
             if result:
                 segments.append(result)
-            else:
-                segments.extend(lookup_fingerspelling(db, token['word']))
 
     return segments
