@@ -34,6 +34,15 @@ class ArticleListResponse(BaseModel):
     articles: list[ArticleResponse]
 
 
+class SummarizeRequest(BaseModel):
+    article_url: str
+
+
+class SummarizeResponse(BaseModel):
+    article_url: str
+    summary: str
+
+
 class ConvertRequest(BaseModel):
     article_url: str
 
