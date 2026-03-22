@@ -1,6 +1,8 @@
 <div align="center">
 
-[![손뉴스](https://github.com/user-attachments/assets/9cb8cb12-2e73-471b-8af4-14eb286c4809)](https://github.com/user-attachments/assets/9cb8cb12-2e73-471b-8af4-14eb286c4809)
+<a href="https://github.com/user-attachments/assets/9cb8cb12-2e73-471b-8af4-14eb286c4809">
+  <img src="https://github.com/user-attachments/assets/9cb8cb12-2e73-471b-8af4-14eb286c4809" width="300"/>
+</a>
 
 ### SIGN LANGUAGE NEWS · 손으로 읽는 뉴스
 
@@ -27,7 +29,7 @@
 |------|------|
 | **Backend** | Python 3.11, FastAPI |
 | **Database** | MySQL 8.0, SQLAlchemy, PyMySQL |
-| **AI** | Claude API (claude-sonnet-4-20250514), kiwipiepy |
+| **AI** | Claude API (claude-sonnet-4), kiwipiepy |
 | **Infrastructure** | Docker, Docker Compose |
 
 ---
