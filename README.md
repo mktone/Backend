@@ -3,8 +3,6 @@
   <img src="https://github.com/user-attachments/assets/327b7560-2d78-46dc-964b-ffacfb6ca6c1" width="300"/>
 </a>
 
-### SIGN LANGUAGE NEWS · 손으로 읽는 뉴스
-
 **"보고 싶은 기사를, 내 언어로, 원하는 때에"**
 
 농인의 모국어는 수어입니다. 하지만 한국어 문법과 수어 문법은 다르고, 수어 뉴스 서비스는 사실상 전무합니다.
