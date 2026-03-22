@@ -1,4 +1,36 @@
-# Backend
+<div align="center">
+
+[![손뉴스](https://github.com/user-attachments/assets/9cb8cb12-2e73-471b-8af4-14eb286c4809)](https://github.com/user-attachments/assets/9cb8cb12-2e73-471b-8af4-14eb286c4809)
+
+### SIGN LANGUAGE NEWS · 손으로 읽는 뉴스
+
+**"보고 싶은 기사를, 내 언어로, 원하는 때에"**
+
+농인의 모국어는 수어입니다. 하지만 한국어 문법과 수어 문법은 다르고, 수어 뉴스 서비스는 사실상 전무합니다.
+손뉴스는 매경 뉴스 기사를 한국수어(KSL) 문법으로 변환하고, 3D 아바타가 수어로 전달하는 서비스입니다.
+
+</div>
+
+---
+
+## 주요 기능
+
+- **뉴스 기사 원문 표시** - 기사 제목, 본문, 이미지 함께 제공
+- **3D 아바타 수어 영상** - 한국수어 문법에 맞게 변환된 기사 내용을 아바타가 수어로 제공
+- **자막 동기화** - 아바타 수어 동작에 맞춰 자막 표시
+
+---
+
+## 기술 스택
+
+| 분류 | 기술 |
+|------|------|
+| **Backend** | Python 3.11, FastAPI |
+| **Database** | MySQL 8.0, SQLAlchemy, PyMySQL |
+| **AI** | Claude API (claude-sonnet-4-20250514), kiwipiepy |
+| **Infrastructure** | Docker, Docker Compose |
+
+---
 
 ## 사전 요구사항
 
