@@ -1,7 +1,6 @@
 <div align="center">
-
-<a href="https://github.com/user-attachments/assets/9cb8cb12-2e73-471b-8af4-14eb286c4809">
-  <img src="https://github.com/user-attachments/assets/9cb8cb12-2e73-471b-8af4-14eb286c4809" width="300"/>
+<a href="https://github.com/user-attachments/assets/327b7560-2d78-46dc-964b-ffacfb6ca6c1">
+  <img src="https://github.com/user-attachments/assets/327b7560-2d78-46dc-964b-ffacfb6ca6c1" width="300"/>
 </a>
 
 ### SIGN LANGUAGE NEWS · 손으로 읽는 뉴스
